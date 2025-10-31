@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EcoQuiz 🌿</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Noto+Sans+KR:wght@400;700&display=swap');
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Noto Sans KR', 'Poppins', sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, #56ab91, #a8e6cf);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+  }
+
+  .container {
+    width: 100%;
+    height: 100%;
+    max-width: 900px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+  }
+
+  p {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+  }
+
+  button {
+    background: #fff;
+    color: #2b7a78;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: 0.3s ease;
+  }
+
+  button:hover {
+    background: #2b7a78;
+    color: #fff;
+  }
+
+  .quiz-box, .result-box {
+    display: none;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .question {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 40px;
+  }
+
+  .options {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .options button {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 1rem;
+    padding: 15px;
+    border-radius: 12px;
+    transition: 0.3s;
+  }
+
+  .options button:hover {
+    background: #2b7a78;
+    color: #fff;
+  }
+
+  .progress {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: #fff;
+    transition: width 0.4s;
+  }
+
+  .score {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .message {
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2rem; }
+    .question { font-size: 1.2rem; }
+    button { font-size: 0.95rem; }
+  }
+</style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- ✅ 시작 화면 -->
+    <div class="start-box">
+      <h1>🌿 EcoQuiz</h1>
+      <p>환경과 생태를 지키는 지식을 테스트해보세요!</p>
+      <button onclick="startQuiz()">게임 시작</button>
+    </div>
+
+    <!-- ✅ 퀴즈 화면 -->
+    <div class="quiz-box">
+      <div class="question"></div>
+      <div class="options"></div>
+      <div class="progress"><div class="progress-bar"></div></div>
+    </div>
+
+    <!-- ✅ 결과 화면 -->
+    <div class="result-box">
+      <h1>결과</h1>
+      <div class="score"></div>
+      <p class="message"></p>
+      <br />
+      <button onclick="location.reload()">다시 하기</button>
+    </div>
+  </div>
+
+<script>
+  const quizData = [
+    { q: "지구 평균기온 상승의 주요 원인은?", a: ["산소 증가", "이산화탄소 증가", "질소 감소", "태양 빛 감소"], c: 1 },
+    { q: "플라스틱의 주원료는?", a: ["목재", "석유", "유리", "알루미늄"], c: 1 },
+    { q: "다음 중 재생 가능 에너지는?", a: ["석탄", "천연가스", "태양광", "석유"], c: 2 },
+    { q: "산성비의 주요 원인은?", a: ["이산화탄소", "황산화물과 질소산화물", "메탄", "산소"], c: 1 },
+    { q: "멸종위기종 보호를 위한 국제 협약은?", a: ["파리협약", "람사르협약", "워싱턴협약", "교토의정서"], c: 2 },
+    { q: "온실 효과의 주된 기체가 아닌 것은?", a: ["이산화탄소", "메탄", "질소", "수증기"], c: 2 },
+    { q: "지구의 허파라 불리는 지역은?", a: ["사하라 사막", "아마존 열대우림", "빙하 지역", "알프스 산맥"], c: 1 },
+    { q: "플라스틱 쓰레기를 줄이는 행동은?", a: ["일회용품 사용", "분리수거", "무분별한 폐기", "태우기"], c: 1 },
+    { q: "바다 생태계를 위협하는 주범은?", a: ["플랑크톤", "미세플라스틱", "해조류", "고래"], c: 1 },
+    { q: "2050년까지 탄소중립을 목표로 하는 협약은?", a: ["파리협약", "도쿄협약", "런던선언", "리우선언"], c: 0 }
+  ];
+
+  let current = 0;
+  let score = 0;
+
+  const startBox = document.querySelector('.start-box');
+  const quizBox = document.querySelector('.quiz-box');
+  const resultBox = document.querySelector('.result-box');
+  const questionEl = document.querySelector('.question');
+  const optionsEl = document.querySelector('.options');
+  const progressBar = document.querySelector('.progress-bar');
+  const scoreEl = document.querySelector('.score');
+  const messageEl = document.querySelector('.message');
+
+  function startQuiz() {
+    startBox.style.display = 'none';
+    quizBox.style.display = 'flex';
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    if (current >= quizData.length) {
+      endQuiz();
+      return;
+    }
+
+    const q = quizData[current];
+    questionEl.textContent = `Q${current + 1}. ${q.q}`;
+    optionsEl.innerHTML = "";
+
+    q.a.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.textContent = opt;
+      btn.onclick = () => checkAnswer(i);
+      optionsEl.appendChild(btn);
+    });
+
+    progressBar.style.width = `${(current / quizData.length) * 100}%`;
+  }
+
+  function checkAnswer(selected) {
+    if (selected === quizData[current].c) {
+      score += 10;
+    }
+    current++;
+    loadQuestion();
+  }
+
+  function endQuiz() {
+    quizBox.style.display = 'none';
+    resultBox.style.display = 'flex';
+    progressBar.style.width = '100%';
+    scoreEl.textContent = `점수: ${score}점`;
+
+    if (score >= 80) {
+      messageEl.textContent = "🌎 훌륭해요! 당신은 진정한 지구 수호자입니다.";
+    } else if (score >= 50) {
+      messageEl.textContent = "🌱 좋은 시도예요! 환경에 대한 관심이 느껴져요.";
+    } else {
+      messageEl.textContent = "🍂 조금 더 공부해봐요! 지구가 기다리고 있어요.";
+    }
+  }
+</script>
+</body>
+</html>
